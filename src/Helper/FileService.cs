@@ -27,37 +27,40 @@ class FileService
         {
             throw ExceptionHandler.FileException(ex.Message);
         }
+        catch (ArgumentException ex)
+        {
+            throw ExceptionHandler.ArgumentException(ex.Message);
+        }
     }
 
     public void AddNewLine(string dataString)
     {
-        using(var sw = _fileHandle.AppendText())
+        try
         {
-            sw.WriteLine(dataString);
+            using(var sw = _fileHandle.AppendText())
+            {
+                sw.WriteLine(dataString);
+            }
         }
-    }
-
-    public void WriteAll()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void UpdateLine()
-    {
-        throw new NotImplementedException();
-    }
-
-    public void RemoveLine()
-    {
-        throw new NotImplementedException();
+        catch (System.Exception ex)
+        {
+             throw ExceptionHandler.FileException(ex.Message);
+        }
     }
 
     public void EmptyAndOverwrite(List<string> stringLines)
     {
-        File.WriteAllLines(_path, stringLines);
-        // using(var sw = _fileHandle.AppendText())
-        // {
-            
-        // }
+        try
+        {
+            File.WriteAllLines(_path, stringLines);
+        }
+        catch (FileNotFoundException ex)
+        {
+            throw ExceptionHandler.FileException(ex.Message);
+        }
+        catch (ArgumentNullException ex)
+        {
+            throw ExceptionHandler.ArgumentException(ex.Message);
+        }
     }
 }
