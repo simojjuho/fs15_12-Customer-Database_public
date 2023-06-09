@@ -1,11 +1,20 @@
-namespace src.CustomerDB.CustomerDB;
+using src.Helper;
+
+namespace src.CustomerDB;
 
 class CustomerDatabase
 {
-    private Dictionary<string, Customer> _customers = new();
+    private Dictionary<Guid, Customer> _customers = new();
     private HashSet<string> _emails = new();
     private Stack<Action> _undoStack = new();
     private Stack<Action> _redoStack = new();
+    private FileService _fileService = new FileService("customers.csv");
+    private static CustomerDatabase? _customerDatabase = null;
+
+    private CustomerDatabase()
+    {
+        initializeCustomers();
+    }
 
     public int RedoStack
     {
@@ -21,12 +30,14 @@ class CustomerDatabase
             return _redoStack.Count;
         }
     }
+    
     public bool AddNew(Customer customer, bool isUndo = false, bool isRedo = false)
     {
         if(!_emails.Contains(customer.Email))
         {
-            _emails.Add(customer.Id);
+            _emails.Add(customer.Email);
             _customers.Add(customer.Id, customer);
+            _fileService.AddNewLine($"{customer.Id};{customer.FirstName};{customer.LastName};{customer.Email};{customer.Address}");
             // TODO: This needs to be changed. It works, but now it's just too complicated to figure out.
             if(isUndo)
             {
@@ -54,7 +65,7 @@ class CustomerDatabase
         }
     }
 
-    public Customer GetEntry(string id)
+    public Customer GetEntry(Guid id)
     {
         return _customers[id];
     }
@@ -77,13 +88,14 @@ class CustomerDatabase
        }
     }
 
-    public bool Delete(string id, bool isUndo = false, bool isRedo = false)
+    public bool Delete(Guid id, bool isUndo = false, bool isRedo = false)
     {
         try
         {
             Customer oldCustomer = _customers[id];
             _customers.Remove(id);
             _emails.Remove(oldCustomer.Email);
+            reWriteAllCustomers();
             // TODO: This needs to be changed. It works, but now it's just too complicated to figure out.
             if(isUndo)
             {
@@ -126,13 +138,52 @@ class CustomerDatabase
 
     public override string ToString()
     {
-        string text = "Customer Database:\n ";
+        string text = "Customer Database:\n";
         foreach (var item in _customers)
         {
-            text += item;
+            text += item.Value;
             text += "\n---\n";
         }
         text += "======";
         return text;
+    }
+
+    public static CustomerDatabase NewCustomerDatabase()
+    {
+        if (_customerDatabase is null)
+        {
+            _customerDatabase = new CustomerDatabase();
+        }
+        return _customerDatabase;
+    }
+
+    private void reWriteAllCustomers()
+    {
+        Customer[] customerArray = _customers.Values.ToArray();
+        List<string> stringList = new();
+        foreach(var customer in customerArray)
+        {
+            stringList.Add($"{customer.Id};{customer.FirstName};{customer.LastName};{customer.Email};{customer.Address}");
+        }
+        _fileService.EmptyAndOverwrite(stringList);        
+    }
+
+    private void initializeCustomers()
+    {
+        string[] customerStrings = _fileService.GetAllData();
+        if(customerStrings.Length > 0)
+        {
+            foreach(string val in customerStrings)
+            {
+                string[] customerArray = val.Split(';');
+                if(customerArray.Length != 5)
+                {
+                    continue;
+                }
+                var customer = new Customer(customerArray[1], customerArray[2], customerArray[3], customerArray[4], customerArray[0]);
+                _emails.Add(customer.Email);
+                _customers.Add(customer.Id, customer);
+            }
+        }        
     }
 }

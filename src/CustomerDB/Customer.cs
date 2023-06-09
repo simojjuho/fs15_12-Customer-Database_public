@@ -1,14 +1,14 @@
-namespace src.CustomerDB.CustomerDB;
+namespace src.CustomerDB;
 
 class Customer
 {
-    private string _id;
+    private System.Guid _id;
     private string _firstName;
     private string _lastName;
     private string _email;
     private string _address;
 
-    public string Id
+    public System.Guid Id
     {
         get
         {
@@ -19,7 +19,7 @@ class Customer
     {
         get
         {
-            return FirstName;
+            return _firstName;
         }
         set
         {
@@ -88,13 +88,20 @@ class Customer
             }
         }
     }
-    public Customer(string id, string firstName, string lastName, string email, string address )
+    public Customer(string firstName, string lastName, string email, string address, string id = "" )
     {
-        this._id = id;
-        this._firstName = firstName;
-        this._lastName = lastName;
-        this._email = email;
-        this._address = address;
+        if (id == "" || id == null)
+        {
+            this._id = Guid.NewGuid();
+        }
+        else
+        {
+            _id = new Guid(id);
+        }
+        _firstName = firstName;
+        _lastName = lastName;
+        _email = email;
+        _address = address;
     }
     public override bool Equals(object? obj)
     {
@@ -113,7 +120,7 @@ class Customer
 
     public override string ToString()
     {
-        return $"Customer id: {_id}:\nname: {_lastName}, {_firstName}\nemail: {_email}\naddress: {_address}";
+        return $"Customer id: {_id}\nname: {_lastName}, {_firstName}\nemail: {_email}\naddress: {_address}";
     }
 
     ~Customer()
