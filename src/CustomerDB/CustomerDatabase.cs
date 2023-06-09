@@ -76,6 +76,7 @@ class CustomerDatabase
        {
         Customer oldCustomer = _customers[customer.Id];
         _customers[customer.Id] = customer;
+        reWriteAllCustomers();
         _undoStack.Push(delegate(){
             _customers[customer.Id] = oldCustomer;
         });

@@ -12,7 +12,8 @@ public class Program
         try
         {
             var database = CustomerDatabase.NewCustomerDatabase();
-            database.Delete(new Guid(id));
+            Console.WriteLine(database);
+            database.Update(new Customer("JK", "Paasikivi", "paasi@kivi.com", "Paasikiventie, Tampere", "5e605dc5-0ce8-4fec-8f49-728c710163df"));
             // Customer cust1 = new Customer("Juho", "Simojoki", "juho@mail.com", "address 123 a 4, 33100 Tampere");
             // Customer cust2 = new Customer("Urho", "Kekkonen", "urkki@mail.com", "address 123 a 4, 00100 Helsinki");
             // Customer cust3 = new Customer("Mauno", "Koivisto", "manu@mail.com", "address 123 a 4, 00120 Helsinki");
